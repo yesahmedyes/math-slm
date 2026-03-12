@@ -6,4 +6,5 @@ numpy
 tqdm
 accelerate
 flash-linear-attention
-causal-conv1d
+# causal-conv1d  # optional: enables fast path for Qwen3.5 Gated DeltaNet layers
+#                # requires system CUDA toolkit matching PyTorch's CUDA version to build
