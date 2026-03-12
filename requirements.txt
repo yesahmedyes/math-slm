@@ -5,3 +5,5 @@ sympy>=1.13.0
 numpy
 tqdm
 accelerate
+flash-linear-attention
+causal-conv1d
