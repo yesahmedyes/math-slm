@@ -48,7 +48,9 @@ Problem: {problem}
 # Method 5: Full Formalization (SymPy)
 # =============================================================================
 
-FORMAL_SYSTEM = "You are a math problem solver that uses SymPy for symbolic computation."
+FORMAL_SYSTEM = (
+    "You are a math problem solver that uses SymPy for symbolic computation."
+)
 
 FORMAL_USER = """Solve the following math problem by writing a complete SymPy program. Define all variables as symbols, set up all equations, solve them symbolically, and print ONLY the final numerical answer.
 

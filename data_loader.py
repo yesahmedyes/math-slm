@@ -14,13 +14,15 @@ def load_gsm8k(max_samples=None):
     samples = []
     for i, ex in enumerate(ds):
         gold = extract_gsm8k_gold(ex["answer"])
-        samples.append({
-            "idx": i,
-            "problem": ex["question"],
-            "gold": gold,
-            "full_solution": ex["answer"],
-            "source": "gsm8k",
-        })
+        samples.append(
+            {
+                "idx": i,
+                "problem": ex["question"],
+                "gold": gold,
+                "full_solution": ex["answer"],
+                "source": "gsm8k",
+            }
+        )
     return samples
 
 
@@ -36,14 +38,16 @@ def load_math_subset(subset_key, max_samples=None):
     samples = []
     for i, ex in enumerate(filtered):
         gold = extract_math_gold(ex["solution"])
-        samples.append({
-            "idx": i,
-            "problem": ex["problem"],
-            "gold": gold,
-            "full_solution": ex["solution"],
-            "source": subset_key,
-            "level": ex.get("level", ""),
-        })
+        samples.append(
+            {
+                "idx": i,
+                "problem": ex["problem"],
+                "gold": gold,
+                "full_solution": ex["solution"],
+                "source": subset_key,
+                "level": ex.get("level", ""),
+            }
+        )
     return samples
 
 

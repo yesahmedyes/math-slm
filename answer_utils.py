@@ -2,7 +2,11 @@
 
 import re
 import sympy
-from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application
+from sympy.parsing.sympy_parser import (
+    parse_expr,
+    standard_transformations,
+    implicit_multiplication_application,
+)
 
 
 def extract_gsm8k_gold(answer_str: str) -> str:
@@ -61,7 +65,8 @@ def extract_answer_from_model(text: str) -> str:
     # Priority 3: "the answer is X" patterns
     m = re.search(
         r"(?:the\s+)?(?:final\s+)?answer\s+is\s*:?\s*\$?\\?(?:boxed\{)?(-?[\d,./]+\.?\d*)\}?\$?",
-        text, re.IGNORECASE
+        text,
+        re.IGNORECASE,
     )
     if m:
         return m.group(1).replace(",", "")
@@ -135,7 +140,9 @@ def compare_answers(predicted: str, gold: str, source: str = "gsm8k") -> bool:
     # For MATH: try symbolic equivalence via SymPy
     if source.startswith("math"):
         try:
-            transformations = standard_transformations + (implicit_multiplication_application,)
+            transformations = standard_transformations + (
+                implicit_multiplication_application,
+            )
             pred_expr = parse_expr(pred_norm, transformations=transformations)
             gold_expr = parse_expr(gold_norm, transformations=transformations)
             diff = sympy.simplify(pred_expr - gold_expr)

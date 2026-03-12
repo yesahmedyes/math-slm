@@ -15,14 +15,21 @@ from config import MODELS, SAMPLING_CONFIGS, S3MATH_MAX_REPAIRS
 from inference import load_model
 from data_loader import load_dataset_by_name
 from prompts import (
-    S3MATH_SYSTEM, S3MATH_USER, S3MATH_REPAIR,
+    S3MATH_SYSTEM,
+    S3MATH_USER,
+    S3MATH_REPAIR,
     build_messages,
 )
 from answer_utils import extract_answer_from_model, compare_answers
 from symbolic_engine import (
-    SymbolicState, parse_trace, execute_trace, has_errors,
-    format_trace_with_errors, format_error_summary,
-    extract_answer_from_trace, SYMBOLIC_OPS,
+    SymbolicState,
+    parse_trace,
+    execute_trace,
+    has_errors,
+    format_trace_with_errors,
+    format_error_summary,
+    extract_answer_from_trace,
+    SYMBOLIC_OPS,
 )
 
 METHOD = "s3math"
@@ -53,8 +60,11 @@ def solve_one(model, problem: str, max_repairs: int = S3MATH_MAX_REPAIRS) -> dic
         # Trace parsing failed entirely; fall back to raw extraction
         answer = extract_answer_from_model(output)
         stats = {
-            "total_steps": 0, "symbolic_executions": 0,
-            "exec_errors": 0, "check_failures": 0, "parse_errors": 1,
+            "total_steps": 0,
+            "symbolic_executions": 0,
+            "exec_errors": 0,
+            "check_failures": 0,
+            "parse_errors": 1,
         }
         return {
             "predicted_answer": answer,
@@ -142,19 +152,21 @@ def evaluate(model, data, batch_size=1):
 
         correct = compare_answers(result["predicted_answer"], ex["gold"], ex["source"])
 
-        results.append({
-            "idx": ex.get("idx"),
-            "problem": ex["problem"],
-            "gold_answer": ex["gold"],
-            "predicted_answer": result["predicted_answer"],
-            "correct": correct,
-            "raw_outputs": result["raw_outputs"],
-            "output_tokens": result["output_tokens"],
-            "repair_attempts": result["repair_attempts"],
-            "trace_steps": result["trace_steps"],
-            "stats": result["stats"],
-            "final_state": result["final_state"],
-        })
+        results.append(
+            {
+                "idx": ex.get("idx"),
+                "problem": ex["problem"],
+                "gold_answer": ex["gold"],
+                "predicted_answer": result["predicted_answer"],
+                "correct": correct,
+                "raw_outputs": result["raw_outputs"],
+                "output_tokens": result["output_tokens"],
+                "repair_attempts": result["repair_attempts"],
+                "trace_steps": result["trace_steps"],
+                "stats": result["stats"],
+                "final_state": result["final_state"],
+            }
+        )
 
     return results
 
@@ -174,7 +186,8 @@ def compute_summary(results):
     repair_success = sum(1 for r in needed_repair if r["correct"])
 
     problems_with_errors = sum(
-        1 for r in results
+        1
+        for r in results
         if r["stats"]["exec_errors"] > 0
         or r["stats"]["check_failures"] > 0
         or r["stats"]["parse_errors"] > 0
@@ -199,9 +212,17 @@ def compute_summary(results):
 def main():
     parser = argparse.ArgumentParser(description="S3-Math evaluation")
     parser.add_argument("--model", choices=list(MODELS.keys()), required=True)
-    parser.add_argument("--dataset", required=True,
-                        choices=["gsm8k", "math_algebra", "math_number_theory",
-                                 "math_counting_prob", "all"])
+    parser.add_argument(
+        "--dataset",
+        required=True,
+        choices=[
+            "gsm8k",
+            "math_algebra",
+            "math_number_theory",
+            "math_counting_prob",
+            "all",
+        ],
+    )
     parser.add_argument("--max_samples", type=int, default=None)
     parser.add_argument("--max_repairs", type=int, default=S3MATH_MAX_REPAIRS)
     parser.add_argument("--output_dir", default="results")
@@ -217,19 +238,23 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
 
     for ds_name, data in datasets.items():
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Evaluating {METHOD} | model={args.model} | dataset={ds_name}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         results = evaluate(model, data)
         summary = compute_summary(results)
 
-        print(f"Accuracy: {summary['accuracy']:.4f} ({summary['correct']}/{summary['total']})")
+        print(
+            f"Accuracy: {summary['accuracy']:.4f} ({summary['correct']}/{summary['total']})"
+        )
         print(f"Avg tokens: {summary['avg_tokens']}")
         print(f"Avg symbolic calls: {summary['avg_symbolic_calls']}")
         print(f"Invalid reasoning rate: {summary['invalid_reasoning_rate']:.4f}")
-        print(f"Repair success rate: {summary['repair_success_rate']:.4f} "
-              f"({summary['repair_needed']} needed repair)")
+        print(
+            f"Repair success rate: {summary['repair_success_rate']:.4f} "
+            f"({summary['repair_needed']} needed repair)"
+        )
 
         output = {
             "method": METHOD,

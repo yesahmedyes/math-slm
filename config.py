@@ -74,4 +74,4 @@ TASK_CATEGORIES = {
 # S3-Math specific
 S3MATH_MAX_REPAIRS = 2
 S3MATH_SYMPY_TIMEOUT = 5  # seconds per operation
-CODE_EXEC_TIMEOUT = 10    # seconds for code execution
+CODE_EXEC_TIMEOUT = 10  # seconds for code execution

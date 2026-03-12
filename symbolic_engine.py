@@ -9,7 +9,9 @@ from typing import Optional
 
 import sympy
 from sympy.parsing.sympy_parser import (
-    parse_expr, standard_transformations, implicit_multiplication_application,
+    parse_expr,
+    standard_transformations,
+    implicit_multiplication_application,
     convert_xor,
 )
 
@@ -18,6 +20,7 @@ from config import S3MATH_SYMPY_TIMEOUT
 # =============================================================================
 # Operation types
 # =============================================================================
+
 
 class OpType(Enum):
     DEFINE = "DEFINE"
@@ -40,6 +43,7 @@ ALL_OPS = set(OpType)
 # Data structures
 # =============================================================================
 
+
 @dataclass
 class TraceStep:
     op_type: OpType
@@ -54,9 +58,9 @@ class TraceStep:
 
 @dataclass
 class SymbolicState:
-    variables: dict = field(default_factory=dict)       # name -> SymPy expr or number
-    equations: list = field(default_factory=list)        # list of SymPy Eq objects
-    constraints: list = field(default_factory=list)      # list of SymPy expressions
+    variables: dict = field(default_factory=dict)  # name -> SymPy expr or number
+    equations: list = field(default_factory=list)  # list of SymPy Eq objects
+    constraints: list = field(default_factory=list)  # list of SymPy expressions
 
     def snapshot(self) -> str:
         """Human-readable snapshot of current state."""
@@ -78,11 +82,14 @@ class SymbolicState:
 # Timeout utility
 # =============================================================================
 
+
 @contextmanager
 def timeout(seconds):
     """Timeout context manager using SIGALRM (Unix only)."""
+
     def handler(signum, frame):
         raise TimeoutError(f"Operation timed out after {seconds}s")
+
     old = signal.signal(signal.SIGALRM, handler)
     signal.alarm(seconds)
     try:
@@ -118,7 +125,9 @@ def safe_parse(expr_str: str, local_vars: dict) -> sympy.Expr:
                 local_dict[k] = sympy.Symbol(k)
 
     try:
-        return parse_expr(expr_str, local_dict=local_dict, transformations=TRANSFORMATIONS)
+        return parse_expr(
+            expr_str, local_dict=local_dict, transformations=TRANSFORMATIONS
+        )
     except Exception:
         pass
 
@@ -140,23 +149,25 @@ def safe_parse(expr_str: str, local_vars: dict) -> sympy.Expr:
 # =============================================================================
 
 TRACE_PATTERNS = {
-    OpType.DEFINE:     re.compile(r"DEFINE:\s*(\w+)\s*=\s*(.+)", re.IGNORECASE),
-    OpType.ASSUME:     re.compile(r"ASSUME:\s*(.+)", re.IGNORECASE),
-    OpType.EQUATION:   re.compile(r"EQUATION:\s*(\w+)\s*=\s*(.+)", re.IGNORECASE),
-    OpType.SIMPLIFY:   re.compile(r"SIMPLIFY:\s*(.+?)\s*(?:->|=)\s*(.+)", re.IGNORECASE),
-    OpType.SUBSTITUTE: re.compile(r"SUBSTITUTE:\s*(.+?)\s*(?:->|=)\s*(.+)", re.IGNORECASE),
-    OpType.CHECK:      re.compile(r"CHECK:\s*(.+?)\s*->\s*(.+)", re.IGNORECASE),
-    OpType.SOLVE:      re.compile(r"SOLVE:\s*(.+?)\s*->\s*(.+)", re.IGNORECASE),
-    OpType.ANSWER:     re.compile(r"ANSWER:\s*(.+)", re.IGNORECASE),
+    OpType.DEFINE: re.compile(r"DEFINE:\s*(\w+)\s*=\s*(.+)", re.IGNORECASE),
+    OpType.ASSUME: re.compile(r"ASSUME:\s*(.+)", re.IGNORECASE),
+    OpType.EQUATION: re.compile(r"EQUATION:\s*(\w+)\s*=\s*(.+)", re.IGNORECASE),
+    OpType.SIMPLIFY: re.compile(r"SIMPLIFY:\s*(.+?)\s*(?:->|=)\s*(.+)", re.IGNORECASE),
+    OpType.SUBSTITUTE: re.compile(
+        r"SUBSTITUTE:\s*(.+?)\s*(?:->|=)\s*(.+)", re.IGNORECASE
+    ),
+    OpType.CHECK: re.compile(r"CHECK:\s*(.+?)\s*->\s*(.+)", re.IGNORECASE),
+    OpType.SOLVE: re.compile(r"SOLVE:\s*(.+?)\s*->\s*(.+)", re.IGNORECASE),
+    OpType.ANSWER: re.compile(r"ANSWER:\s*(.+)", re.IGNORECASE),
 }
 
 # Alternative patterns (model may use slightly different formats)
 ALT_PATTERNS = {
-    OpType.DEFINE:     re.compile(r"DEFINE\((\w+),\s*(.+?)\)", re.IGNORECASE),
-    OpType.EQUATION:   re.compile(r"EQUATION\((.+?),\s*(.+?)\)", re.IGNORECASE),
-    OpType.SIMPLIFY:   re.compile(r"SIMPLIFY\((.+?)\)\s*(?:->|=)\s*(.+)", re.IGNORECASE),
-    OpType.SOLVE:      re.compile(r"SOLVE\((.+?)\)\s*(?:->|=)\s*(.+)", re.IGNORECASE),
-    OpType.ANSWER:     re.compile(r"ANSWER\((.+?)\)", re.IGNORECASE),
+    OpType.DEFINE: re.compile(r"DEFINE\((\w+),\s*(.+?)\)", re.IGNORECASE),
+    OpType.EQUATION: re.compile(r"EQUATION\((.+?),\s*(.+?)\)", re.IGNORECASE),
+    OpType.SIMPLIFY: re.compile(r"SIMPLIFY\((.+?)\)\s*(?:->|=)\s*(.+)", re.IGNORECASE),
+    OpType.SOLVE: re.compile(r"SOLVE\((.+?)\)\s*(?:->|=)\s*(.+)", re.IGNORECASE),
+    OpType.ANSWER: re.compile(r"ANSWER\((.+?)\)", re.IGNORECASE),
 }
 
 
@@ -176,7 +187,9 @@ def parse_trace(model_output: str) -> list[TraceStep]:
                 groups = m.groups()
                 lhs = groups[0].strip() if len(groups) > 0 else ""
                 rhs = groups[1].strip() if len(groups) > 1 else ""
-                steps.append(TraceStep(op_type=op_type, raw_line=line, lhs=lhs, rhs=rhs))
+                steps.append(
+                    TraceStep(op_type=op_type, raw_line=line, lhs=lhs, rhs=rhs)
+                )
                 matched = True
                 break
 
@@ -188,7 +201,9 @@ def parse_trace(model_output: str) -> list[TraceStep]:
                     groups = m.groups()
                     lhs = groups[0].strip() if len(groups) > 0 else ""
                     rhs = groups[1].strip() if len(groups) > 1 else ""
-                    steps.append(TraceStep(op_type=op_type, raw_line=line, lhs=lhs, rhs=rhs))
+                    steps.append(
+                        TraceStep(op_type=op_type, raw_line=line, lhs=lhs, rhs=rhs)
+                    )
                     matched = True
                     break
 
@@ -201,8 +216,10 @@ def parse_trace(model_output: str) -> list[TraceStep]:
 # Trace execution
 # =============================================================================
 
-def execute_trace(steps: list[TraceStep], state: SymbolicState,
-                  symbolic_ops: set = None) -> tuple[str, list[TraceStep], dict]:
+
+def execute_trace(
+    steps: list[TraceStep], state: SymbolicState, symbolic_ops: set = None
+) -> tuple[str, list[TraceStep], dict]:
     """Execute all trace steps, updating the symbolic state.
 
     Args:
@@ -235,8 +252,13 @@ def execute_trace(steps: list[TraceStep], state: SymbolicState,
                         expr = safe_parse(step.rhs, state.variables)
                         # Try to evaluate numerically
                         evaled = expr.subs(
-                            {sympy.Symbol(k): v for k, v in state.variables.items()
-                             if isinstance(v, (int, float, sympy.Number, sympy.Rational))}
+                            {
+                                sympy.Symbol(k): v
+                                for k, v in state.variables.items()
+                                if isinstance(
+                                    v, (int, float, sympy.Number, sympy.Rational)
+                                )
+                            }
                         )
                         state.variables[step.lhs] = evaled
                         step.symbolic_result = str(evaled)
@@ -256,8 +278,13 @@ def execute_trace(steps: list[TraceStep], state: SymbolicState,
                     with timeout(S3MATH_SYMPY_TIMEOUT):
                         rhs_expr = safe_parse(step.rhs, state.variables)
                         evaled = rhs_expr.subs(
-                            {sympy.Symbol(k): v for k, v in state.variables.items()
-                             if isinstance(v, (int, float, sympy.Number, sympy.Rational))}
+                            {
+                                sympy.Symbol(k): v
+                                for k, v in state.variables.items()
+                                if isinstance(
+                                    v, (int, float, sympy.Number, sympy.Rational)
+                                )
+                            }
                         )
                         state.variables[step.lhs] = evaled
                         lhs_sym = sympy.Symbol(step.lhs)
@@ -277,10 +304,17 @@ def execute_trace(steps: list[TraceStep], state: SymbolicState,
                 if route_symbolic:
                     with timeout(S3MATH_SYMPY_TIMEOUT):
                         expr = safe_parse(step.lhs, state.variables)
-                        result = sympy.simplify(expr.subs(
-                            {sympy.Symbol(k): v for k, v in state.variables.items()
-                             if isinstance(v, (int, float, sympy.Number, sympy.Rational))}
-                        ))
+                        result = sympy.simplify(
+                            expr.subs(
+                                {
+                                    sympy.Symbol(k): v
+                                    for k, v in state.variables.items()
+                                    if isinstance(
+                                        v, (int, float, sympy.Number, sympy.Rational)
+                                    )
+                                }
+                            )
+                        )
                         step.symbolic_result = str(result)
                         # Update state if there's an assignment pattern
                         parts = step.lhs.split("=")
@@ -297,8 +331,13 @@ def execute_trace(steps: list[TraceStep], state: SymbolicState,
                     with timeout(S3MATH_SYMPY_TIMEOUT):
                         expr = safe_parse(step.lhs, state.variables)
                         result = expr.subs(
-                            {sympy.Symbol(k): v for k, v in state.variables.items()
-                             if isinstance(v, (int, float, sympy.Number, sympy.Rational))}
+                            {
+                                sympy.Symbol(k): v
+                                for k, v in state.variables.items()
+                                if isinstance(
+                                    v, (int, float, sympy.Number, sympy.Rational)
+                                )
+                            }
                         )
                         step.symbolic_result = str(result)
                     stats["symbolic_executions"] += 1
@@ -349,10 +388,17 @@ def execute_trace(steps: list[TraceStep], state: SymbolicState,
                         cond_str = step.lhs
                         # Replace variable names with values
                         for k, v in state.variables.items():
-                            cond_str = re.sub(r"\b" + re.escape(k) + r"\b", str(v), cond_str)
+                            cond_str = re.sub(
+                                r"\b" + re.escape(k) + r"\b", str(v), cond_str
+                            )
                         try:
-                            check_result = bool(eval(cond_str, {"__builtins__": {}},
-                                                     {"abs": abs, "min": min, "max": max}))
+                            check_result = bool(
+                                eval(
+                                    cond_str,
+                                    {"__builtins__": {}},
+                                    {"abs": abs, "min": min, "max": max},
+                                )
+                            )
                         except Exception:
                             check_result = None
                         step.symbolic_result = str(check_result)
@@ -409,6 +455,7 @@ def _try_eval_simple(expr_str: str, variables: dict):
 # Repair utilities
 # =============================================================================
 
+
 def has_errors(steps: list[TraceStep]) -> bool:
     """Check if any step has errors."""
     return any(s.error is not None for s in steps)
@@ -419,7 +466,7 @@ def format_error_summary(steps: list[TraceStep]) -> str:
     errors = []
     for i, step in enumerate(steps):
         if step.error:
-            errors.append(f"Step {i+1} ({step.op_type.value}): {step.error}")
+            errors.append(f"Step {i + 1} ({step.op_type.value}): {step.error}")
     return "\n".join(errors) if errors else "No errors"
 
 
@@ -429,13 +476,14 @@ def format_trace_with_errors(steps: list[TraceStep]) -> str:
     for i, step in enumerate(steps):
         status = "OK" if step.executed and not step.error else f"ERROR: {step.error}"
         result_str = f" = {step.symbolic_result}" if step.symbolic_result else ""
-        lines.append(f"  Step {i+1}: {step.raw_line}  [{status}]{result_str}")
+        lines.append(f"  Step {i + 1}: {step.raw_line}  [{status}]{result_str}")
     return "\n".join(lines)
 
 
 # =============================================================================
 # Extract answer from raw output (fallback when trace parsing fails)
 # =============================================================================
+
 
 def extract_answer_from_trace(steps: list[TraceStep], state: SymbolicState) -> str:
     """Try to get the answer from parsed trace, falling back to state."""

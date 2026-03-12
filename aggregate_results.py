@@ -23,9 +23,7 @@ def load_all_results(results_dir):
 def get_accuracy(results, method, model, dataset):
     """Look up accuracy for a specific method/model/dataset combo."""
     for r in results:
-        if (r["method"] == method
-                and r["model"] == model
-                and r["dataset"] == dataset):
+        if r["method"] == method and r["model"] == model and r["dataset"] == dataset:
             return r["summary"]["accuracy"]
     return None
 
@@ -66,14 +64,14 @@ def print_table1(results):
             if ds_accs:
                 avg = sum(ds_accs) / len(ds_accs)
                 accs.append(avg)
-                row.append(f"{avg*100:.1f}")
+                row.append(f"{avg * 100:.1f}")
             else:
                 accs.append(None)
                 row.append("  -")
 
         valid = [a for a in accs if a is not None]
         overall_avg = sum(valid) / len(valid) if valid else None
-        row.append(f"{overall_avg*100:.1f}" if overall_avg else "  -")
+        row.append(f"{overall_avg * 100:.1f}" if overall_avg else "  -")
 
         print(f"{row[0]:<25} {row[1]:>8} {row[2]:>8} {row[3]:>8} {row[4]:>8}")
 
@@ -110,7 +108,7 @@ def print_table2(results):
         for m in methods_to_show:
             acc = get_accuracy(results, m, model_name, ds_name)
             accs[m] = acc
-            row.append(f"{acc*100:.1f}" if acc else "  -")
+            row.append(f"{acc * 100:.1f}" if acc else "  -")
 
         # Gain = S3-Math - CoT
         if accs.get("s3math") and accs.get("cot"):
@@ -140,18 +138,22 @@ def print_table3(results):
         print("  No S3-Math results found.")
         return
 
-    print(f"{'Model':<20} {'Dataset':<20} {'Accuracy':>10} {'InvalidRate':>12} "
-          f"{'RepairRate':>12} {'AvgTokens':>10}")
+    print(
+        f"{'Model':<20} {'Dataset':<20} {'Accuracy':>10} {'InvalidRate':>12} "
+        f"{'RepairRate':>12} {'AvgTokens':>10}"
+    )
     print("-" * 86)
 
     for r in s3math_results:
         s = r["summary"]
         model_short = r["model"].split("/")[-1]
-        print(f"{model_short:<20} {r['dataset']:<20} "
-              f"{s['accuracy']*100:>9.1f}% "
-              f"{s.get('invalid_reasoning_rate', 0)*100:>11.1f}% "
-              f"{s.get('repair_success_rate', 0)*100:>11.1f}% "
-              f"{s.get('avg_tokens', 0):>10.0f}")
+        print(
+            f"{model_short:<20} {r['dataset']:<20} "
+            f"{s['accuracy'] * 100:>9.1f}% "
+            f"{s.get('invalid_reasoning_rate', 0) * 100:>11.1f}% "
+            f"{s.get('repair_success_rate', 0) * 100:>11.1f}% "
+            f"{s.get('avg_tokens', 0):>10.0f}"
+        )
 
     print()
 
@@ -188,10 +190,12 @@ def print_table4(results):
         avg_acc = sum(all_accs) / len(all_accs)
         avg_sym = sum(sym_calls) / len(sym_calls)
 
-        print(f"{method_names.get(method, method):<25} "
-              f"{avg_tok:>12.0f} "
-              f"{avg_sym:>12.1f} "
-              f"{avg_acc*100:>9.1f}%")
+        print(
+            f"{method_names.get(method, method):<25} "
+            f"{avg_tok:>12.0f} "
+            f"{avg_sym:>12.1f} "
+            f"{avg_acc * 100:>9.1f}%"
+        )
 
     print()
 
@@ -231,10 +235,12 @@ def print_ablation_table(results):
         avg_tok = sum(tokens) / len(tokens)
         avg_rep = sum(repairs) / len(repairs)
 
-        print(f"{ablation_names[method_key]:<35} "
-              f"{avg_acc*100:>9.1f}% "
-              f"{avg_tok:>12.0f} "
-              f"{avg_rep*100:>11.1f}%")
+        print(
+            f"{ablation_names[method_key]:<35} "
+            f"{avg_acc * 100:>9.1f}% "
+            f"{avg_tok:>12.0f} "
+            f"{avg_rep * 100:>11.1f}%"
+        )
 
     print()
 
@@ -245,19 +251,21 @@ def export_csv(results, output_path):
 
     rows = []
     for r in results:
-        rows.append({
-            "method": r["method"],
-            "model": r["model"],
-            "dataset": r["dataset"],
-            "accuracy": r["summary"]["accuracy"],
-            "total": r["summary"]["total"],
-            "correct": r["summary"]["correct"],
-            "avg_tokens": r["summary"].get("avg_tokens", ""),
-            "avg_symbolic_calls": r["summary"].get("avg_symbolic_calls", ""),
-            "invalid_rate": r["summary"].get("invalid_reasoning_rate", ""),
-            "repair_success": r["summary"].get("repair_success_rate", ""),
-            "exec_success": r["summary"].get("exec_success_rate", ""),
-        })
+        rows.append(
+            {
+                "method": r["method"],
+                "model": r["model"],
+                "dataset": r["dataset"],
+                "accuracy": r["summary"]["accuracy"],
+                "total": r["summary"]["total"],
+                "correct": r["summary"]["correct"],
+                "avg_tokens": r["summary"].get("avg_tokens", ""),
+                "avg_symbolic_calls": r["summary"].get("avg_symbolic_calls", ""),
+                "invalid_rate": r["summary"].get("invalid_reasoning_rate", ""),
+                "repair_success": r["summary"].get("repair_success_rate", ""),
+                "exec_success": r["summary"].get("exec_success_rate", ""),
+            }
+        )
 
     if not rows:
         print("No results to export.")

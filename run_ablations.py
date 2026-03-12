@@ -22,15 +22,24 @@ from config import MODELS, SAMPLING_CONFIGS, S3MATH_MAX_REPAIRS
 from inference import load_model
 from data_loader import load_dataset_by_name
 from prompts import (
-    S3MATH_SYSTEM, S3MATH_USER, S3MATH_REPAIR,
-    ABLATION_NO_TYPING_SYSTEM, ABLATION_NO_TYPING_USER,
+    S3MATH_SYSTEM,
+    S3MATH_USER,
+    S3MATH_REPAIR,
+    ABLATION_NO_TYPING_SYSTEM,
+    ABLATION_NO_TYPING_USER,
     build_messages,
 )
 from answer_utils import extract_answer_from_model, compare_answers
 from symbolic_engine import (
-    SymbolicState, parse_trace, execute_trace, has_errors,
-    format_trace_with_errors, format_error_summary,
-    extract_answer_from_trace, SYMBOLIC_OPS, ALL_OPS,
+    SymbolicState,
+    parse_trace,
+    execute_trace,
+    has_errors,
+    format_trace_with_errors,
+    format_error_summary,
+    extract_answer_from_trace,
+    SYMBOLIC_OPS,
+    ALL_OPS,
 )
 
 
@@ -61,7 +70,9 @@ def solve_one(model, problem: str, ablation: AblationConfig) -> dict:
     if ablation.use_typed_traces:
         messages = build_messages(S3MATH_SYSTEM, S3MATH_USER, problem)
     else:
-        messages = build_messages(ABLATION_NO_TYPING_SYSTEM, ABLATION_NO_TYPING_USER, problem)
+        messages = build_messages(
+            ABLATION_NO_TYPING_SYSTEM, ABLATION_NO_TYPING_USER, problem
+        )
 
     prompt = model.build_prompt(messages, enable_thinking=False)
     output = model.generate([prompt], **{k: v for k, v in cfg.items()})[0]
@@ -73,7 +84,7 @@ def solve_one(model, problem: str, ablation: AblationConfig) -> dict:
     if not ablation.use_selective_routing:
         symbolic_ops = ALL_OPS  # Route everything to SymPy
     elif not ablation.use_symbolic_exec:
-        symbolic_ops = set()   # Route nothing to SymPy
+        symbolic_ops = set()  # Route nothing to SymPy
     else:
         symbolic_ops = SYMBOLIC_OPS
 
@@ -92,14 +103,20 @@ def solve_one(model, problem: str, ablation: AblationConfig) -> dict:
         # No symbolic exec: extract answer from trace without executing
         answer = extract_answer_from_trace(steps, state)
         stats = {
-            "total_steps": len(steps), "symbolic_executions": 0,
-            "exec_errors": 0, "check_failures": 0, "parse_errors": 0,
+            "total_steps": len(steps),
+            "symbolic_executions": 0,
+            "exec_errors": 0,
+            "check_failures": 0,
+            "parse_errors": 0,
         }
     else:
         answer = extract_answer_from_model(output)
         stats = {
-            "total_steps": 0, "symbolic_executions": 0,
-            "exec_errors": 0, "check_failures": 0, "parse_errors": 1,
+            "total_steps": 0,
+            "symbolic_executions": 0,
+            "exec_errors": 0,
+            "check_failures": 0,
+            "parse_errors": 1,
         }
         return {
             "predicted_answer": answer,
@@ -111,8 +128,9 @@ def solve_one(model, problem: str, ablation: AblationConfig) -> dict:
 
     # Repair loop (if enabled)
     repair_attempts = 0
-    while (ablation.use_repair_loop and has_errors(steps)
-           and repair_attempts < max_repairs):
+    while (
+        ablation.use_repair_loop and has_errors(steps) and repair_attempts < max_repairs
+    ):
         repair_attempts += 1
 
         repair_prompt_text = S3MATH_REPAIR.format(
@@ -159,16 +177,18 @@ def evaluate(model, data, ablation: AblationConfig):
     for ex in tqdm(data, desc=f"Ablation: {ablation.name}"):
         result = solve_one(model, ex["problem"], ablation)
         correct = compare_answers(result["predicted_answer"], ex["gold"], ex["source"])
-        results.append({
-            "idx": ex.get("idx"),
-            "problem": ex["problem"],
-            "gold_answer": ex["gold"],
-            "predicted_answer": result["predicted_answer"],
-            "correct": correct,
-            "output_tokens": result["output_tokens"],
-            "repair_attempts": result["repair_attempts"],
-            "stats": result["stats"],
-        })
+        results.append(
+            {
+                "idx": ex.get("idx"),
+                "problem": ex["problem"],
+                "gold_answer": ex["gold"],
+                "predicted_answer": result["predicted_answer"],
+                "correct": correct,
+                "output_tokens": result["output_tokens"],
+                "repair_attempts": result["repair_attempts"],
+                "stats": result["stats"],
+            }
+        )
     return results
 
 
@@ -187,20 +207,29 @@ def compute_summary(results):
         "correct": correct,
         "avg_tokens": round(avg_tokens, 1),
         "avg_symbolic_calls": round(avg_sym, 1),
-        "repair_success_rate": round(
-            repair_success / max(len(needed_repair), 1), 4
-        ) if needed_repair else 0.0,
+        "repair_success_rate": round(repair_success / max(len(needed_repair), 1), 4)
+        if needed_repair
+        else 0.0,
     }
 
 
 def main():
     parser = argparse.ArgumentParser(description="S3-Math ablation studies")
     parser.add_argument("--model", choices=list(MODELS.keys()), required=True)
-    parser.add_argument("--dataset", required=True,
-                        choices=["gsm8k", "math_algebra", "math_number_theory",
-                                 "math_counting_prob", "all"])
-    parser.add_argument("--ablation", required=True,
-                        choices=list(ABLATION_CONFIGS.keys()) + ["all"])
+    parser.add_argument(
+        "--dataset",
+        required=True,
+        choices=[
+            "gsm8k",
+            "math_algebra",
+            "math_number_theory",
+            "math_counting_prob",
+            "all",
+        ],
+    )
+    parser.add_argument(
+        "--ablation", required=True, choices=list(ABLATION_CONFIGS.keys()) + ["all"]
+    )
     parser.add_argument("--max_samples", type=int, default=None)
     parser.add_argument("--output_dir", default="results")
     args = parser.parse_args()
@@ -213,7 +242,8 @@ def main():
         datasets = {args.dataset: load_dataset_by_name(args.dataset, args.max_samples)}
 
     ablations = (
-        list(ABLATION_CONFIGS.values()) if args.ablation == "all"
+        list(ABLATION_CONFIGS.values())
+        if args.ablation == "all"
         else [ABLATION_CONFIGS[args.ablation]]
     )
 
@@ -221,19 +251,23 @@ def main():
 
     for ablation in ablations:
         for ds_name, data in datasets.items():
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print(f"Ablation: {ablation.name} | model={args.model} | dataset={ds_name}")
-            print(f"  typed_traces={ablation.use_typed_traces}, "
-                  f"symbolic_exec={ablation.use_symbolic_exec}, "
-                  f"selective={ablation.use_selective_routing}, "
-                  f"repair={ablation.use_repair_loop}")
-            print(f"{'='*60}")
+            print(
+                f"  typed_traces={ablation.use_typed_traces}, "
+                f"symbolic_exec={ablation.use_symbolic_exec}, "
+                f"selective={ablation.use_selective_routing}, "
+                f"repair={ablation.use_repair_loop}"
+            )
+            print(f"{'=' * 60}")
 
             results = evaluate(model, data, ablation)
             summary = compute_summary(results)
 
-            print(f"Accuracy: {summary['accuracy']:.4f} "
-                  f"({summary['correct']}/{summary['total']})")
+            print(
+                f"Accuracy: {summary['accuracy']:.4f} "
+                f"({summary['correct']}/{summary['total']})"
+            )
 
             output = {
                 "method": f"ablation_{ablation.name}",

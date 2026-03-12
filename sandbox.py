@@ -7,16 +7,42 @@ import tempfile
 from config import CODE_EXEC_TIMEOUT
 
 ALLOWED_IMPORTS = {
-    "math", "fractions", "decimal", "itertools", "functools",
-    "collections", "sympy", "numpy", "re", "statistics",
+    "math",
+    "fractions",
+    "decimal",
+    "itertools",
+    "functools",
+    "collections",
+    "sympy",
+    "numpy",
+    "re",
+    "statistics",
 }
 
 DISALLOWED_PATTERNS = [
-    "os.", "sys.", "subprocess", "open(", "__import__",
-    "eval(", "exec(", "compile(", "shutil", "pathlib",
-    "socket", "http", "urllib", "requests", "pickle",
-    "signal", "ctypes", "multiprocessing", "threading",
-    "glob", "tempfile", "webbrowser", "input(",
+    "os.",
+    "sys.",
+    "subprocess",
+    "open(",
+    "__import__",
+    "eval(",
+    "exec(",
+    "compile(",
+    "shutil",
+    "pathlib",
+    "socket",
+    "http",
+    "urllib",
+    "requests",
+    "pickle",
+    "signal",
+    "ctypes",
+    "multiprocessing",
+    "threading",
+    "glob",
+    "tempfile",
+    "webbrowser",
+    "input(",
 ]
 
 
@@ -56,9 +82,11 @@ def extract_code_from_output(text: str) -> str:
         stripped = line.strip()
         if not started:
             # Look for first line that looks like Python
-            if (stripped.startswith(("import ", "from ", "#", "def ", "class "))
-                    or "=" in stripped
-                    or stripped.startswith("print")):
+            if (
+                stripped.startswith(("import ", "from ", "#", "def ", "class "))
+                or "=" in stripped
+                or stripped.startswith("print")
+            ):
                 started = True
                 code_lines.append(line)
         else:
