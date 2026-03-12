@@ -19,41 +19,43 @@ ALLOWED_IMPORTS = {
     "statistics",
 }
 
+# Each entry: (regex_pattern, human_readable_label)
 DISALLOWED_PATTERNS = [
-    "os.",
-    "sys.",
-    "subprocess",
-    "open(",
-    "__import__",
-    "eval(",
-    "exec(",
-    "compile(",
-    "shutil",
-    "pathlib",
-    "socket",
-    "http",
-    "urllib",
-    "requests",
-    "pickle",
-    "signal",
-    "ctypes",
-    "multiprocessing",
-    "threading",
-    "glob",
-    "tempfile",
-    "webbrowser",
-    "input(",
+    (r"\bos\.",              "os."),
+    (r"\bsys\.",             "sys."),
+    (r"\bsubprocess\b",     "subprocess"),
+    (r"\bopen\s*\(",        "open("),
+    (r"\b__import__\s*\(",  "__import__("),
+    (r"(?<!\w)eval\s*\(",   "eval("),
+    (r"(?<!\w)exec\s*\(",   "exec("),
+    (r"\bcompile\s*\(",     "compile("),
+    (r"\bshutil\b",         "shutil"),
+    (r"\bpathlib\b",        "pathlib"),
+    (r"\bsocket\b",         "socket"),
+    (r"\burllib\b",         "urllib"),
+    (r"\brequests\b",       "requests"),
+    (r"\bpickle\b",         "pickle"),
+    (r"\bsignal\b",         "signal"),
+    (r"\bctypes\b",         "ctypes"),
+    (r"\bmultiprocessing\b","multiprocessing"),
+    (r"\bthreading\b",      "threading"),
+    (r"\btempfile\b",       "tempfile"),
+    (r"\bwebbrowser\b",     "webbrowser"),
+    (r"\binput\s*\(",       "input("),
 ]
 
 
 def validate_code(code: str) -> tuple:
     """Check code for disallowed operations. Returns (is_valid, reason)."""
-    for pattern in DISALLOWED_PATTERNS:
-        if pattern in code:
-            return False, f"Disallowed pattern: {pattern}"
+    # Strip comments to avoid false positives
+    code_no_comments = re.sub(r"#.*$", "", code, flags=re.MULTILINE)
+
+    for pattern, label in DISALLOWED_PATTERNS:
+        if re.search(pattern, code_no_comments):
+            return False, f"Disallowed pattern: {label}"
 
     # Check imports
-    import_matches = re.findall(r"(?:from|import)\s+([\w.]+)", code)
+    import_matches = re.findall(r"(?:from|import)\s+([\w.]+)", code_no_comments)
     for imp in import_matches:
         root = imp.split(".")[0]
         if root not in ALLOWED_IMPORTS:
@@ -83,15 +85,24 @@ def extract_code_from_output(text: str) -> str:
         if not started:
             # Look for first line that looks like Python
             if (
-                stripped.startswith(("import ", "from ", "#", "def ", "class "))
+                stripped.startswith((
+                    "import ", "from ", "#", "def ", "class ",
+                    "for ", "if ", "while ", "return ", "try:", "with ",
+                    "elif ", "else:", "except", "finally:",
+                ))
                 or "=" in stripped
                 or stripped.startswith("print")
+                or (stripped.endswith(")") and "(" in stripped)
             ):
                 started = True
                 code_lines.append(line)
         else:
             # Stop if we hit something that's clearly not code
-            if stripped.startswith(("The answer", "Therefore", "So ")):
+            if stripped.startswith((
+                "The answer", "Therefore", "So ", "Thus ",
+                "Hence ", "In conclusion", "Final answer",
+                "Answer:", "Output:",
+            )):
                 break
             code_lines.append(line)
 
@@ -117,13 +128,19 @@ def execute_code(code: str) -> dict:
 
     # Ensure the code has a print statement (common issue)
     if "print" not in code:
-        # Try to add print for the last expression
         lines = code.strip().split("\n")
         last_line = lines[-1].strip()
-        if "=" in last_line and not last_line.startswith("#"):
-            var_name = last_line.split("=")[0].strip()
-            lines.append(f"print({var_name})")
-            code = "\n".join(lines)
+        if not last_line.startswith("#"):
+            # Only match simple assignment: var = expr (not ==, !=, +=, etc.)
+            assign_match = re.match(r'^(\w+)\s*=[^=]', last_line)
+            if assign_match:
+                var_name = assign_match.group(1)
+                lines.append(f"print({var_name})")
+                code = "\n".join(lines)
+            elif not last_line.startswith(("import ", "from ", "def ", "class ")):
+                # Bare expression — wrap in print
+                lines[-1] = f"print({last_line})"
+                code = "\n".join(lines)
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write(code)

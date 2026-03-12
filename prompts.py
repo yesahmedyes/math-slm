@@ -37,12 +37,11 @@ SC_COT_USER = COT_USER
 
 CODE_SYSTEM = "You are a math problem solver that writes Python code."
 
-CODE_USER = """Solve the following math problem by writing a Python program. Your code must print ONLY the final numerical answer.
+CODE_USER = """Solve the following math problem by writing a Python program.
+Write your solution inside a ```python code block.
+Your code must print ONLY the final numerical answer.
 
-Problem: {problem}
-
-```python
-"""
+Problem: {problem}"""
 
 # =============================================================================
 # Method 5: Full Formalization (SymPy)
@@ -52,13 +51,11 @@ FORMAL_SYSTEM = (
     "You are a math problem solver that uses SymPy for symbolic computation."
 )
 
-FORMAL_USER = """Solve the following math problem by writing a complete SymPy program. Define all variables as symbols, set up all equations, solve them symbolically, and print ONLY the final numerical answer.
+FORMAL_USER = """Solve the following math problem by writing a complete SymPy program.
+Write your solution inside a ```python code block.
+Use `from sympy import *` at the top. Define all variables as symbols, set up all equations, solve them symbolically, and print ONLY the final numerical answer.
 
-Problem: {problem}
-
-```python
-from sympy import *
-"""
+Problem: {problem}"""
 
 # =============================================================================
 # Method 6: S3-Math (Selective Neuro-Symbolic State Scaffolding)

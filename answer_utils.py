@@ -71,6 +71,30 @@ def extract_answer_from_model(text: str) -> str:
     if m:
         return m.group(1).replace(",", "")
 
+    # Priority 3.5: Common code/SymPy output patterns
+    stripped_text = text.strip()
+
+    # Fraction(a, b) -> a/b
+    m = re.match(r"^-?\s*Fraction\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)$", stripped_text)
+    if m:
+        return f"{m.group(1)}/{m.group(2)}"
+
+    # Single-element numeric container: [5], {-3}, [-3.14]
+    m = re.match(r"^[\[{]\s*(-?[\d.]+(?:/\d+)?)\s*[\]}]$", stripped_text)
+    if m:
+        return m.group(1)
+
+    # Single-element symbolic container: [-sqrt(2)], [pi/4]
+    m = re.match(r"^[\[{]\s*([^,]+?)\s*[\]}]$", stripped_text)
+    if m:
+        inner = m.group(1).strip()
+        try:
+            from sympy import sympify
+            val = float(sympify(inner))
+            return str(int(val)) if val == int(val) else str(val)
+        except Exception:
+            return inner
+
     # Priority 4: Last number in text (common for direct answer)
     numbers = re.findall(r"-?\d+(?:,\d{3})*(?:\.\d+)?(?:/\d+)?", text)
     if numbers:

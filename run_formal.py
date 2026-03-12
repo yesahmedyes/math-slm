@@ -45,7 +45,9 @@ def evaluate(model, data, batch_size=32):
     for ex, output in tqdm(zip(data, all_outputs), total=len(data), desc="Executing"):
         code_raw = extract_code_from_output(output)
         # Ensure sympy import is present
-        if "from sympy import" not in code_raw and "import sympy" not in code_raw:
+        if ("from sympy import" not in code_raw and
+            "from sympy." not in code_raw and
+            "import sympy" not in code_raw):
             code = "from sympy import *\n" + code_raw
         else:
             code = code_raw
