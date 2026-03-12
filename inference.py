@@ -24,6 +24,7 @@ class ModelInference:
 
         if self.tokenizer.pad_token_id is None:
             self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
+        self.tokenizer.padding_side = "left"
         self.model.generation_config.pad_token_id = self.tokenizer.pad_token_id
 
     def build_prompt(self, messages: list[dict], enable_thinking: bool = False) -> str:
@@ -46,41 +47,49 @@ class ModelInference:
     ) -> list:
         """Generate completions for a batch of prompts.
 
-        Processes prompts one at a time to keep memory usage low.
+        Uses true batched inference with left-padding.
         Returns list of outputs. Each output is either a string (n=1)
         or list of strings (n>1).
         """
-        results = []
-        for prompt in prompts:
-            inputs = self.tokenizer(
-                prompt,
-                return_tensors="pt",
-                truncation=True,
-                max_length=self.max_model_len,
-            ).to(self.model.device)
-            prompt_len = inputs["input_ids"].shape[1]
+        gen_kwargs = {
+            "max_new_tokens": max_tokens,
+            "do_sample": temperature > 0,
+            "top_p": top_p,
+        }
+        if temperature > 0:
+            gen_kwargs["temperature"] = temperature
 
-            gen_kwargs = {
-                "max_new_tokens": max_tokens,
-                "do_sample": temperature > 0,
-                "top_p": top_p,
-            }
-            if temperature > 0:
-                gen_kwargs["temperature"] = temperature
+        inputs = self.tokenizer(
+            prompts,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=self.max_model_len,
+        ).to(self.model.device)
 
-            samples = []
+        # Track each prompt's real length (excluding left-pad tokens)
+        prompt_lengths = inputs["attention_mask"].sum(dim=1)
+
+        if n > 1:
+            # Loop over n, batch over prompts
+            all_samples = [[] for _ in prompts]
             for _ in range(n):
                 with torch.no_grad():
                     output_ids = self.model.generate(**inputs, **gen_kwargs)
-                text = self.tokenizer.decode(
-                    output_ids[0][prompt_len:], skip_special_tokens=True
-                )
-                samples.append(text)
+                for i, (ids, plen) in enumerate(zip(output_ids, prompt_lengths)):
+                    text = self.tokenizer.decode(
+                        ids[plen:], skip_special_tokens=True
+                    )
+                    all_samples[i].append(text)
+            return all_samples
 
-            if n == 1:
-                results.append(samples[0])
-            else:
-                results.append(samples)
+        with torch.no_grad():
+            output_ids = self.model.generate(**inputs, **gen_kwargs)
+
+        results = []
+        for ids, plen in zip(output_ids, prompt_lengths):
+            text = self.tokenizer.decode(ids[plen:], skip_special_tokens=True)
+            results.append(text)
         return results
 
     def count_tokens(self, text: str) -> int:
