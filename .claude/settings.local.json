@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls /Users/ahmedharoon/Desktop/Math-SLM/run_*.py)"
+      "Bash(ls /Users/ahmedharoon/Desktop/Math-SLM/run_*.py)",
+      "Bash(python3:*)",
+      "Bash(ls -la *.py)",
+      "Bash(git -C /Users/ahmedharoon/Desktop/Math-SLM show adb836c:prompts.py)"
     ]
   }
 }
