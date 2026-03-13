@@ -24,7 +24,7 @@ SAMPLING_CONFIGS = {
         "max_tokens": 2048,
         "n": 5,
     },
-    "code": {
+    "pal": {
         "temperature": 0.0,
         "top_p": 1.0,
         "max_tokens": 1024,

@@ -1,4 +1,4 @@
-"""Method 6: S3-Math (Selective Neuro-Symbolic State Scaffolding) evaluation.
+"""Method X: S3-Math (Selective Neuro-Symbolic State Scaffolding) evaluation.
 
 Usage:
     CUDA_VISIBLE_DEVICES=0 python run_s3math.py --model 4B --dataset gsm8k

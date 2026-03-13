@@ -1,7 +1,10 @@
-"""Method 5: Full Formalization evaluation (generate SymPy program, execute it).
+"""Method 4: PAL (Program-Aided Language Models) evaluation.
+
+Generates Python programs with meaningful variable names and executes them.
+Based on Gao et al. (2022) "PAL: Program-aided Language Models".
 
 Usage:
-    CUDA_VISIBLE_DEVICES=0 python run_formal.py --model 4B --dataset gsm8k
+    CUDA_VISIBLE_DEVICES=0 python run_pal.py --model 4B --dataset gsm8k
 """
 
 import argparse
@@ -13,11 +16,11 @@ from tqdm import tqdm
 from config import MODELS, SAMPLING_CONFIGS
 from inference import load_model
 from data_loader import load_dataset_by_name
-from prompts import FORMAL_SYSTEM, FORMAL_USER, build_messages
+from prompts import PAL_SYSTEM, PAL_USER, build_messages
 from answer_utils import extract_answer_from_model, compare_answers
 from sandbox import extract_code_from_output, execute_code
 
-METHOD = "formal"
+METHOD = "pal"
 
 
 def evaluate(model, data, batch_size=32):
@@ -26,7 +29,7 @@ def evaluate(model, data, batch_size=32):
 
     all_prompts = []
     for ex in data:
-        messages = build_messages(FORMAL_SYSTEM, FORMAL_USER, ex["problem"])
+        messages = build_messages(PAL_SYSTEM, PAL_USER, ex["problem"])
         prompt = model.build_prompt(messages, enable_thinking=False)
         all_prompts.append(prompt)
 
@@ -41,30 +44,15 @@ def evaluate(model, data, batch_size=32):
         )
         all_outputs.extend(outputs)
 
-    # Prepend the SymPy import that was in the prompt
+    # Execute code and extract answers
     for ex, output in tqdm(zip(data, all_outputs), total=len(data), desc="Executing"):
-        code_raw = extract_code_from_output(output)
-        # Ensure sympy import is present
-        if ("from sympy import" not in code_raw and
-            "from sympy." not in code_raw and
-            "import sympy" not in code_raw):
-            code = "from sympy import *\n" + code_raw
-        else:
-            code = code_raw
-
+        code = extract_code_from_output(output)
         exec_result = execute_code(code)
-        symbolic_calls = (
-            code.count("solve(")
-            + code.count("simplify(")
-            + code.count("expand(")
-            + code.count("factor(")
-            + code.count("Eq(")
-            + code.count("symbols(")
-        )
 
         if exec_result["success"] and exec_result["stdout"]:
             predicted = extract_answer_from_model(exec_result["stdout"])
         else:
+            # Fallback: try to extract answer from the model output directly
             predicted = extract_answer_from_model(output)
 
         correct = compare_answers(predicted, ex["gold"], ex["source"])
@@ -81,7 +69,6 @@ def evaluate(model, data, batch_size=32):
                 "exec_stdout": exec_result["stdout"],
                 "exec_stderr": exec_result["stderr"],
                 "exec_success": exec_result["success"],
-                "symbolic_calls": symbolic_calls,
                 "output_tokens": model.count_tokens(output),
             }
         )
@@ -94,19 +81,17 @@ def compute_summary(results):
     correct = sum(1 for r in results if r["correct"])
     exec_success = sum(1 for r in results if r["exec_success"])
     avg_tokens = sum(r["output_tokens"] for r in results) / max(total, 1)
-    avg_sym_calls = sum(r["symbolic_calls"] for r in results) / max(total, 1)
     return {
         "accuracy": correct / max(total, 1),
         "total": total,
         "correct": correct,
         "exec_success_rate": exec_success / max(total, 1),
         "avg_tokens": round(avg_tokens, 1),
-        "avg_symbolic_calls": round(avg_sym_calls, 1),
     }
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Full Formalization evaluation")
+    parser = argparse.ArgumentParser(description="PAL evaluation")
     parser.add_argument("--model", choices=list(MODELS.keys()), required=True)
     parser.add_argument(
         "--dataset",
@@ -145,7 +130,6 @@ def main():
             f"Accuracy: {summary['accuracy']:.4f} ({summary['correct']}/{summary['total']})"
         )
         print(f"Code exec success: {summary['exec_success_rate']:.4f}")
-        print(f"Avg symbolic calls: {summary['avg_symbolic_calls']}")
         print(f"Avg tokens: {summary['avg_tokens']}")
 
         output = {

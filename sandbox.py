@@ -1,4 +1,4 @@
-"""Safe code execution sandbox for code-only and full formalization methods."""
+"""Safe code execution sandbox for PAL and full formalization methods."""
 
 import re
 import os
