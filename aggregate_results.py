@@ -32,12 +32,13 @@ def print_table1(results):
     """Table 1: Main results across model sizes."""
     from config import MODELS
 
-    methods = ["direct", "cot", "sc_cot", "pal", "formal", "s3math"]
+    methods = ["direct", "cot", "sc_cot", "pal", "pot", "formal", "s3math"]
     method_names = {
         "direct": "Direct Answer",
         "cot": "CoT",
         "sc_cot": "Self-Consistent CoT",
         "pal": "PAL",
+        "pot": "PoT",
         "formal": "Full Formalization",
         "s3math": "S3-Math (ours)",
     }

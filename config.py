@@ -29,6 +29,11 @@ SAMPLING_CONFIGS = {
         "top_p": 1.0,
         "max_tokens": 1024,
     },
+    "pot": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "max_tokens": 1024,
+    },
     "formal": {
         "temperature": 0.0,
         "top_p": 1.0,
