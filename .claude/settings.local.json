@@ -4,7 +4,11 @@
       "Bash(ls /Users/ahmedharoon/Desktop/Math-SLM/run_*.py)",
       "Bash(python3:*)",
       "Bash(ls -la *.py)",
-      "Bash(git -C /Users/ahmedharoon/Desktop/Math-SLM show adb836c:prompts.py)"
+      "Bash(git -C /Users/ahmedharoon/Desktop/Math-SLM show adb836c:prompts.py)",
+      "Bash(find /Users/ahmedharoon/Downloads /Users/ahmedharoon/Desktop/Math-SLM -name *.pdf)",
+      "Bash(ls -la /Users/ahmedharoon/Downloads/*.pdf)",
+      "Bash(find ~ -maxdepth 4 -name *.pdf -type f)",
+      "Bash(ls -lh /Users/ahmedharoon/Downloads/*.pdf)"
     ]
   }
 }

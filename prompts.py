@@ -39,77 +39,87 @@ PAL_SYSTEM = "You are a math problem solver that decomposes problems into Python
 
 PAL_USER = """Let's use Python to solve math problems. Use meaningful variable names that reflect the problem entities. Write the question as a comment starting with # Q:, then the Python code inside a ```python code block, ending with a print statement.
 
-# Q: Olivia has $23. She bought five bagels for $3 each. How much money does she have left?
+# Q: A tech support agent receives 45 tickets each day. She resolves 38 tickets per day. After 5 working days, how many unresolved tickets has she accumulated?
 ```python
-money_initial = 23
-bagels = 5
-bagel_cost = 3
-money_spent = bagels * bagel_cost
-money_left = money_initial - money_spent
-print(money_left)
+tickets_received_per_day = 45
+tickets_resolved_per_day = 38
+days_worked = 5
+unresolved_per_day = tickets_received_per_day - tickets_resolved_per_day
+total_unresolved = unresolved_per_day * days_worked
+print(total_unresolved)
 ```
 
-# Q: Michael had 58 golf balls. On tuesday, he lost 23 golf balls. On wednesday, he lost 2 more. How many golf balls did he have at the end of wednesday?
+# Q: A laptop originally costs $250. The store offers a 20% discount, but then charges 8% sales tax on the discounted price. What is the final price in dollars?
 ```python
-golf_balls_initial = 58
-golf_balls_lost_tuesday = 23
-golf_balls_lost_wednesday = 2
-golf_balls_left = golf_balls_initial - golf_balls_lost_tuesday - golf_balls_lost_wednesday
-print(golf_balls_left)
+original_price = 250
+discount_percent = 20
+tax_percent = 8
+discounted_price = original_price * (1 - discount_percent / 100)
+sales_tax = discounted_price * tax_percent / 100
+final_price = discounted_price + sales_tax
+print(final_price)
 ```
 
-# Q: There were nine computers in the server room. Five more computers were installed each day, from monday to thursday. How many computers are now in the server room?
+# Q: Solve for x: 3x + 7 = 2x + 15. What is the value of x?
 ```python
-computers_initial = 9
-computers_per_day = 5
-num_days = 4  # 4 days between monday and thursday
-computers_added = computers_per_day * num_days
-computers_total = computers_initial + computers_added
-print(computers_total)
+# 3x + 7 = 2x + 15
+# Rearrange: 3x - 2x = 15 - 7
+coefficient_left = 3
+coefficient_right = 2
+constant_left = 7
+constant_right = 15
+x = (constant_right - constant_left) // (coefficient_left - coefficient_right)
+print(x)
 ```
 
-# Q: If there are 3 cars in the parking lot and 2 more cars arrive, how many cars are in the parking lot?
+# Q: Let f(x) = 2x^2 - 3x + 1. What is f(4) - f(2)?
 ```python
-cars_initial = 3
-cars_arrived = 2
-total_cars = cars_initial + cars_arrived
-print(total_cars)
+def f(x):
+    return 2 * x**2 - 3 * x + 1
+result = f(4) - f(2)
+print(result)
 ```
 
-# Q: Leah had 32 chocolates and her sister had 42. If they ate 35, how many pieces do they have left in total?
+# Q: Two buses depart from the same station. Bus A departs every 48 minutes and Bus B departs every 180 minutes. If they both depart at 6:00 AM, how many minutes after 6:00 AM will they next depart at the same time?
 ```python
-leah_chocolates = 32
-sister_chocolates = 42
-total_chocolates = leah_chocolates + sister_chocolates
-chocolates_eaten = 35
-chocolates_left = total_chocolates - chocolates_eaten
-print(chocolates_left)
+import math
+bus_a_interval = 48
+bus_b_interval = 180
+gcd = math.gcd(bus_a_interval, bus_b_interval)
+lcm = bus_a_interval * bus_b_interval // gcd
+print(lcm)
 ```
 
-# Q: Jason had 20 lollipops. He gave Denny some lollipops. Now Jason has 12 lollipops. How many lollipops did Jason give to Denny?
+# Q: What is the remainder when 7^100 is divided by 5?
 ```python
-jason_lollipops_initial = 20
-jason_lollipops_after = 12
-denny_lollipops = jason_lollipops_initial - jason_lollipops_after
-print(denny_lollipops)
+base = 7
+exponent = 100
+modulus = 5
+remainder = pow(base, exponent, modulus)
+print(remainder)
 ```
 
-# Q: There are 15 trees in the grove. Grove workers will plant trees in the grove today. After they are done, there will be 21 trees. How many trees did the grove workers plant today?
+# Q: A club has 8 members. How many ways can they choose a committee of 3 members?
 ```python
-trees_initial = 15
-trees_after = 21
-trees_added = trees_after - trees_initial
-print(trees_added)
+import math
+total_members = 8
+committee_size = 3
+ways = math.factorial(total_members) // (math.factorial(committee_size) * math.factorial(total_members - committee_size))
+print(ways)
 ```
 
-# Q: Shawn has five toys. For Christmas, he got two toys each from his mom and dad. How many toys does he have now?
+# Q: Two fair six-sided dice are rolled. What is the probability that their sum is at least 10? Express your answer as a common fraction.
 ```python
-toys_initial = 5
-mom_toys = 2
-dad_toys = 2
-total_received = mom_toys + dad_toys
-total_toys = toys_initial + total_received
-print(total_toys)
+from fractions import Fraction
+favorable = 0
+total = 0
+for die1 in range(1, 7):
+    for die2 in range(1, 7):
+        total += 1
+        if die1 + die2 >= 10:
+            favorable += 1
+probability = Fraction(favorable, total)
+print(probability)
 ```
 
 # Q: {problem}
@@ -121,100 +131,96 @@ print(total_toys)
 
 POT_SYSTEM = "You are a math problem solver that expresses reasoning steps as Python programs. Use meaningful variable names. You may use SymPy for symbolic math and loops for iterative problems. Store the final answer in a variable named 'ans'. Always write your code inside a ```python code block."
 
-POT_USER = """Question: Janet's ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?
+POT_USER = """Question: Maria is reading a 320-page book. On weekdays she reads 25 pages per day, and on weekends she reads 40 pages per day. How many full weeks does it take her to finish the book?
 ```python
 # Python code, return ans
-total_eggs = 16
-eaten_eggs = 3
-baked_eggs = 4
-sold_eggs = total_eggs - eaten_eggs - baked_eggs
-dollars_per_egg = 2
-ans = sold_eggs * dollars_per_egg
+import math
+pages_total = 320
+pages_weekday = 25
+pages_weekend = 40
+weekdays = 5
+weekend_days = 2
+pages_per_week = pages_weekday * weekdays + pages_weekend * weekend_days
+ans = math.ceil(pages_total / pages_per_week)
 print(ans)
 ```
 
-Question: A robe takes 2 bolts of blue fiber and half that much white fiber. How many bolts does it take in total?
+Question: A swimming pool holds 480 gallons. A hose fills it at 12 gallons per hour, but a small crack drains water at 4 gallons per hour. How many hours does it take to fill the pool from empty?
 ```python
 # Python code, return ans
-bolts_of_blue_fiber = 2
-bolts_of_white_fiber = bolts_of_blue_fiber / 2
-ans = bolts_of_blue_fiber + bolts_of_white_fiber
+pool_capacity = 480
+fill_rate = 12
+drain_rate = 4
+net_fill_rate = fill_rate - drain_rate
+ans = pool_capacity // net_fill_rate
 print(ans)
 ```
 
-Question: Josh decides to try flipping a house. He buys a house for $80,000 and then puts in $50,000 in repairs. This increased the value of the house by 150%. How much profit did he make?
+Question: If 2x + y = 11 and x - y = 1, what is the value of x + y?
 ```python
 # Python code, return ans
-cost_of_original_house = 80000
-increase_rate = 150 / 100
-value_of_house = (1 + increase_rate) * cost_of_original_house
-cost_of_repair = 50000
-ans = value_of_house - cost_of_repair - cost_of_original_house
+from sympy import symbols, Eq, solve
+x, y = symbols('x y')
+eq1 = Eq(2*x + y, 11)
+eq2 = Eq(x - y, 1)
+solution = solve((eq1, eq2), (x, y))
+ans = solution[x] + solution[y]
 print(ans)
 ```
 
-Question: Every day, Wendi feeds each of her chickens three cups of mixed chicken feed, containing seeds, mealworms and vegetables to help keep them healthy. She gives the chickens their feed in three separate meals. In the morning, she gives her flock of chickens 15 cups of feed. In the afternoon, she gives her chickens another 25 cups of feed. How many cups of feed does she need to give her chickens in the final meal of the day if the size of Wendi's flock is 20 chickens?
+Question: Find the positive difference between the roots of x^2 - 5x + 6 = 0.
 ```python
 # Python code, return ans
-numb_of_chickens = 20
-cups_for_each_chicken = 3
-cups_for_all_chicken = numb_of_chickens * cups_for_each_chicken
-cups_in_the_morning = 15
-cups_in_the_afternoon = 25
-ans = cups_for_all_chicken - cups_in_the_morning - cups_in_the_afternoon
+from sympy import symbols, solve
+x = symbols('x')
+roots = solve(x**2 - 5*x + 6, x)
+ans = max(roots) - min(roots)
 print(ans)
 ```
 
-Question: Kylar went to the store to buy glasses for his new apartment. One glass costs $5, but every second glass costs only 60% of the price. Kylar wants to buy 16 glasses. How much does he need to pay for them?
+Question: What is the sum of all positive divisors of 72?
 ```python
 # Python code, return ans
-num_glasses = 16
-first_glass_cost = 5
-second_glass_cost = 5 * 0.6
-ans = 0
-for i in range(num_glasses):
-    if i % 2 == 0:
-        ans += first_glass_cost
-    else:
-        ans += second_glass_cost
+n = 72
+ans = sum(i for i in range(1, n + 1) if n % i == 0)
 print(ans)
 ```
 
-Question: Marissa is hiking a 12-mile trail. She took 1 hour to walk the first 4 miles, then another hour to walk the next two miles. If she wants her average speed to be 4 miles per hour, what speed (in miles per hour) does she need to walk the remaining distance?
+Question: What is the smallest positive integer that is divisible by both 12 and 18 and is also a perfect square?
 ```python
 # Python code, return ans
-average_mile_per_hour = 4
-total_trail_miles = 12
-remaining_miles = total_trail_miles - 4 - 2
-total_hours = total_trail_miles / average_mile_per_hour
-remaining_hours = total_hours - 2
-ans = remaining_miles / remaining_hours
+from sympy import factorint, lcm
+l = int(lcm(12, 18))
+factors = factorint(l)
+multiplier = 1
+for prime, exp in factors.items():
+    if exp % 2 == 1:
+        multiplier *= prime
+ans = l * multiplier
 print(ans)
 ```
 
-Question: Carlos is planting a lemon tree. The tree will cost $90 to plant. Each year it will grow 7 lemons, which he can sell for $1.5 each. It costs $3 a year to water and feed the tree. How many years will it take before he starts earning money on the lemon tree?
+Question: In how many ways can 5 different books be arranged on a shelf if two specific books must always be next to each other?
 ```python
 # Python code, return ans
-total_cost = 90
-cost_of_watering_and_feeding = 3
-cost_of_each_lemon = 1.5
-num_of_lemon_per_year = 7
-ans = 0
-while total_cost > 0:
-    total_cost += cost_of_watering_and_feeding
-    total_cost -= num_of_lemon_per_year * cost_of_each_lemon
-    ans += 1
+import math
+# Treat the two books as a single unit: 4 units to arrange
+# The two books can be ordered 2! ways within the unit
+ans = math.factorial(4) * math.factorial(2)
 print(ans)
 ```
 
-Question: When Freda cooks canned tomatoes into sauce, they lose half their volume. Each 16 ounce can of tomatoes that she uses contains three tomatoes. Freda's last batch of tomato sauce made 32 ounces of sauce. How many tomatoes did Freda use?
+Question: A bag contains 5 red marbles and 3 blue marbles. If you draw 3 marbles without replacement, what is the probability of getting exactly 2 red marbles? Express your answer as a common fraction.
 ```python
 # Python code, return ans
-lose_rate = 0.5
-num_tomato_contained_in_per_ounce_sauce = 3 / 16
-ounce_sauce_in_last_batch = 32
-num_tomato_in_last_batch = ounce_sauce_in_last_batch * num_tomato_contained_in_per_ounce_sauce
-ans = num_tomato_in_last_batch / (1 - lose_rate)
+from math import comb
+from fractions import Fraction
+red_marbles = 5
+blue_marbles = 3
+draw_count = 3
+favorable = comb(red_marbles, 2) * comb(blue_marbles, 1)
+total = comb(red_marbles + blue_marbles, draw_count)
+ans = Fraction(favorable, total)
 print(ans)
 ```
 
