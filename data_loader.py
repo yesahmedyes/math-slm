@@ -29,10 +29,15 @@ def load_gsm8k(max_samples=None):
 def load_math_subset(subset_key, max_samples=None):
     """Load a filtered subset of the MATH dataset."""
     cfg = DATASET_CONFIGS[subset_key]
-    ds = load_dataset(cfg["path"], split=cfg["split"])
-    # Filter by type
-    filter_type = cfg["filter_type"]
-    filtered = [ex for ex in ds if ex["type"] == filter_type]
+    if "name" in cfg:
+        # Named config (e.g. EleutherAI/hendrycks_math with subset "algebra")
+        ds = load_dataset(cfg["path"], cfg["name"], split=cfg["split"])
+        filtered = list(ds)
+    else:
+        # Legacy: load full dataset and filter by type
+        ds = load_dataset(cfg["path"], split=cfg["split"])
+        filter_type = cfg["filter_type"]
+        filtered = [ex for ex in ds if ex["type"] == filter_type]
     if max_samples:
         filtered = filtered[:max_samples]
     samples = []

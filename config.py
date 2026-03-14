@@ -54,19 +54,19 @@ DATASET_CONFIGS = {
         "split": "test",
     },
     "math_algebra": {
-        "path": "hendrycks/competition_math",
+        "path": "EleutherAI/hendrycks_math",
+        "name": "algebra",
         "split": "test",
-        "filter_type": "Algebra",
     },
     "math_number_theory": {
-        "path": "hendrycks/competition_math",
+        "path": "EleutherAI/hendrycks_math",
+        "name": "number_theory",
         "split": "test",
-        "filter_type": "Number Theory",
     },
     "math_counting_prob": {
-        "path": "hendrycks/competition_math",
+        "path": "EleutherAI/hendrycks_math",
+        "name": "counting_and_probability",
         "split": "test",
-        "filter_type": "Counting & Probability",
     },
 }
 
