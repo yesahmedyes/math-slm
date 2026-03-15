@@ -39,6 +39,23 @@ SAMPLING_CONFIGS = {
         "top_p": 1.0,
         "max_tokens": 1024,
     },
+    "logic_lm": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "max_tokens": 1024,
+        "max_refine": 3,
+    },
+    "comat": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "max_tokens": 2048,
+    },
+    "tora": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "max_tokens": 1024,
+        "max_rounds": 3,
+    },
     "s3math": {
         "temperature": 0.0,
         "top_p": 1.0,

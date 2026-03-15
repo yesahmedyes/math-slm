@@ -32,13 +32,27 @@ def print_table1(results):
     """Table 1: Main results across model sizes."""
     from config import MODELS
 
-    methods = ["direct", "cot", "sc_cot", "pal", "pot", "formal", "s3math"]
+    methods = [
+        "direct",
+        "cot",
+        "sc_cot",
+        "pal",
+        "pot",
+        "comat",
+        "logic_lm",
+        "tora",
+        "formal",
+        "s3math",
+    ]
     method_names = {
         "direct": "Direct Answer",
         "cot": "CoT",
         "sc_cot": "Self-Consistent CoT",
         "pal": "PAL",
         "pot": "PoT",
+        "comat": "CoMAT",
+        "logic_lm": "Logic-LM",
+        "tora": "ToRA",
         "formal": "Full Formalization",
         "s3math": "S3-Math (ours)",
     }
@@ -84,13 +98,27 @@ def print_table2(results):
     from config import MODELS
 
     model_name = MODELS["4B"]
-    methods_to_show = ["direct", "cot", "sc_cot", "pal", "pot", "formal", "s3math"]
+    methods_to_show = [
+        "direct",
+        "cot",
+        "sc_cot",
+        "pal",
+        "pot",
+        "comat",
+        "logic_lm",
+        "tora",
+        "formal",
+        "s3math",
+    ]
     method_names = {
         "direct": "Direct",
         "cot": "CoT",
         "sc_cot": "SC-CoT",
         "pal": "PAL",
         "pot": "PoT",
+        "comat": "CoMAT",
+        "logic_lm": "Logic-LM",
+        "tora": "ToRA",
         "formal": "Full Form.",
         "s3math": "S3-Math",
     }
@@ -177,13 +205,27 @@ def print_table4(results):
     print("TABLE 4: Efficiency Comparison (averaged across datasets)")
     print("=" * 80)
 
-    methods = ["direct", "cot", "sc_cot", "pal", "pot", "formal", "s3math"]
+    methods = [
+        "direct",
+        "cot",
+        "sc_cot",
+        "pal",
+        "pot",
+        "comat",
+        "logic_lm",
+        "tora",
+        "formal",
+        "s3math",
+    ]
     method_names = {
         "direct": "Direct Answer",
         "cot": "CoT",
         "sc_cot": "Self-Consistent CoT",
         "pal": "PAL",
         "pot": "PoT",
+        "comat": "CoMAT",
+        "logic_lm": "Logic-LM",
+        "tora": "ToRA",
         "formal": "Full Formalization",
         "s3math": "S3-Math (ours)",
     }
