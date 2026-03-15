@@ -1,6 +1,7 @@
 """Answer extraction and comparison utilities for GSM8K and MATH benchmarks."""
 
 import re
+import warnings
 import sympy
 from sympy.parsing.sympy_parser import (
     parse_expr,
@@ -167,8 +168,10 @@ def compare_answers(predicted: str, gold: str, source: str = "gsm8k") -> bool:
             transformations = standard_transformations + (
                 implicit_multiplication_application,
             )
-            pred_expr = parse_expr(pred_norm, transformations=transformations)
-            gold_expr = parse_expr(gold_norm, transformations=transformations)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", SyntaxWarning)
+                pred_expr = parse_expr(pred_norm, transformations=transformations)
+                gold_expr = parse_expr(gold_norm, transformations=transformations)
             diff = sympy.simplify(pred_expr - gold_expr)
             return diff == 0
         except Exception:
