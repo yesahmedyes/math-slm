@@ -21,27 +21,27 @@ ALLOWED_IMPORTS = {
 
 # Each entry: (regex_pattern, human_readable_label)
 DISALLOWED_PATTERNS = [
-    (r"\bos\.",              "os."),
-    (r"\bsys\.",             "sys."),
-    (r"\bsubprocess\b",     "subprocess"),
-    (r"\bopen\s*\(",        "open("),
-    (r"\b__import__\s*\(",  "__import__("),
-    (r"(?<!\w)eval\s*\(",   "eval("),
-    (r"(?<!\w)exec\s*\(",   "exec("),
-    (r"\bcompile\s*\(",     "compile("),
-    (r"\bshutil\b",         "shutil"),
-    (r"\bpathlib\b",        "pathlib"),
-    (r"\bsocket\b",         "socket"),
-    (r"\burllib\b",         "urllib"),
-    (r"\brequests\b",       "requests"),
-    (r"\bpickle\b",         "pickle"),
-    (r"\bsignal\b",         "signal"),
-    (r"\bctypes\b",         "ctypes"),
-    (r"\bmultiprocessing\b","multiprocessing"),
-    (r"\bthreading\b",      "threading"),
-    (r"\btempfile\b",       "tempfile"),
-    (r"\bwebbrowser\b",     "webbrowser"),
-    (r"\binput\s*\(",       "input("),
+    (r"\bos\.", "os."),
+    (r"\bsys\.", "sys."),
+    (r"\bsubprocess\b", "subprocess"),
+    (r"\bopen\s*\(", "open("),
+    (r"\b__import__\s*\(", "__import__("),
+    (r"(?<!\w)eval\s*\(", "eval("),
+    (r"(?<!\w)exec\s*\(", "exec("),
+    (r"\bcompile\s*\(", "compile("),
+    (r"\bshutil\b", "shutil"),
+    (r"\bpathlib\b", "pathlib"),
+    (r"\bsocket\b", "socket"),
+    (r"\burllib\b", "urllib"),
+    (r"\brequests\b", "requests"),
+    (r"\bpickle\b", "pickle"),
+    (r"\bsignal\b", "signal"),
+    (r"\bctypes\b", "ctypes"),
+    (r"\bmultiprocessing\b", "multiprocessing"),
+    (r"\bthreading\b", "threading"),
+    (r"\btempfile\b", "tempfile"),
+    (r"\bwebbrowser\b", "webbrowser"),
+    (r"\binput\s*\(", "input("),
 ]
 
 
@@ -70,11 +70,26 @@ def _looks_like_code(line: str) -> bool:
     if not s:
         return True  # blank lines are neutral, keep them
     # Obvious code indicators
-    if s.startswith((
-        "import ", "from ", "#", "def ", "class ",
-        "for ", "if ", "while ", "return ", "try:", "with ",
-        "elif ", "else:", "except", "finally:", "print",
-    )):
+    if s.startswith(
+        (
+            "import ",
+            "from ",
+            "#",
+            "def ",
+            "class ",
+            "for ",
+            "if ",
+            "while ",
+            "return ",
+            "try:",
+            "with ",
+            "elif ",
+            "else:",
+            "except",
+            "finally:",
+            "print",
+        )
+    ):
         return True
     if "=" in s or s.endswith(":") or s.endswith(")"):
         return True
@@ -90,10 +105,24 @@ def _is_nl_stop(line: str) -> bool:
     if _looks_like_code(s):
         return False
     nl_prefixes = (
-        "The answer", "Therefore", "So the", "So,", "Thus ", "Thus,",
-        "Hence ", "Hence,", "In conclusion", "Final answer",
-        "Answer:", "Output:", "The final", "This gives",
-        "We get", "Which gives", "That means", "This means",
+        "The answer",
+        "Therefore",
+        "So the",
+        "So,",
+        "Thus ",
+        "Thus,",
+        "Hence ",
+        "Hence,",
+        "In conclusion",
+        "Final answer",
+        "Answer:",
+        "Output:",
+        "The final",
+        "This gives",
+        "We get",
+        "Which gives",
+        "That means",
+        "This means",
     )
     return s.startswith(nl_prefixes)
 
@@ -168,10 +197,7 @@ def execute_code(code: str) -> dict:
         lines = code.strip().split("\n")
 
         # Strategy 1: If 'ans' is assigned anywhere (PoT convention), print it
-        has_ans = any(
-            re.search(r'\bans\s*(?:=|\+=|-=|\*=|/=)', line)
-            for line in lines
-        )
+        has_ans = any(re.search(r"\bans\s*(?:=|\+=|-=|\*=|/=)", line) for line in lines)
         if has_ans:
             lines.append("print(ans)")
             code = "\n".join(lines)
@@ -180,7 +206,7 @@ def execute_code(code: str) -> dict:
             last_line = lines[-1].strip()
             if not last_line.startswith("#"):
                 # Only match simple assignment: var = expr (not ==, !=, +=, etc.)
-                assign_match = re.match(r'^(\w+)\s*=[^=]', last_line)
+                assign_match = re.match(r"^(\w+)\s*=[^=]", last_line)
                 if assign_match:
                     var_name = assign_match.group(1)
                     lines.append(f"print({var_name})")

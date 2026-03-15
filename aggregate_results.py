@@ -84,13 +84,22 @@ def print_table2(results):
     from config import MODELS
 
     model_name = MODELS["4B"]
-    methods_to_show = ["cot", "formal", "s3math"]
-    method_names = {"cot": "CoT", "formal": "Full Form.", "s3math": "S3-Math"}
+    methods_to_show = ["direct", "cot", "sc_cot", "pal", "pot", "formal", "s3math"]
+    method_names = {
+        "direct": "Direct",
+        "cot": "CoT",
+        "sc_cot": "SC-CoT",
+        "pal": "PAL",
+        "pot": "PoT",
+        "formal": "Full Form.",
+        "s3math": "S3-Math",
+    }
 
     task_map = {
         "Basic arithmetic": "gsm8k",
         "Algebra word problems": "math_algebra",
         "Constraint-heavy": "math_number_theory",
+        "Counting & Probability": "math_counting_prob",
     }
 
     print("\n" + "=" * 80)
@@ -98,10 +107,10 @@ def print_table2(results):
     print("=" * 80)
     header = f"{'Task Type':<25}"
     for m in methods_to_show:
-        header += f" {method_names[m]:>12}"
+        header += f" {method_names[m]:>10}"
     header += f" {'Gain':>8}"
     print(header)
-    print("-" * 70)
+    print("-" * (25 + 10 * len(methods_to_show) + len(methods_to_show) + 9))
 
     for task_name, ds_name in task_map.items():
         row = [task_name]
@@ -109,18 +118,19 @@ def print_table2(results):
         for m in methods_to_show:
             acc = get_accuracy(results, m, model_name, ds_name)
             accs[m] = acc
-            row.append(f"{acc * 100:.1f}" if acc else "  -")
+            row.append(f"{acc * 100:.1f}" if acc is not None else "  -")
 
         # Gain = S3-Math - CoT
-        if accs.get("s3math") and accs.get("cot"):
+        if accs.get("s3math") is not None and accs.get("cot") is not None:
             gain = (accs["s3math"] - accs["cot"]) * 100
             row.append(f"+{gain:.1f}")
         else:
             row.append("  -")
 
         line = f"{row[0]:<25}"
-        for v in row[1:]:
-            line += f" {v:>12}"
+        for v in row[1 : len(methods_to_show) + 1]:
+            line += f" {v:>10}"
+        line += f" {row[-1]:>8}"
         print(line)
 
     print()
@@ -167,10 +177,13 @@ def print_table4(results):
     print("TABLE 4: Efficiency Comparison (averaged across datasets)")
     print("=" * 80)
 
-    methods = ["cot", "sc_cot", "formal", "s3math"]
+    methods = ["direct", "cot", "sc_cot", "pal", "pot", "formal", "s3math"]
     method_names = {
+        "direct": "Direct Answer",
         "cot": "CoT",
-        "sc_cot": "Self-Consistency (5x)",
+        "sc_cot": "Self-Consistent CoT",
+        "pal": "PAL",
+        "pot": "PoT",
         "formal": "Full Formalization",
         "s3math": "S3-Math (ours)",
     }

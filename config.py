@@ -11,17 +11,17 @@ SAMPLING_CONFIGS = {
     "direct": {
         "temperature": 0.0,
         "top_p": 1.0,
-        "max_tokens": 128,
+        "max_tokens": 256,
     },
     "cot": {
         "temperature": 0.0,
         "top_p": 1.0,
-        "max_tokens": 2048,
+        "max_tokens": 1024,
     },
     "sc_cot": {
         "temperature": 0.7,
         "top_p": 0.95,
-        "max_tokens": 2048,
+        "max_tokens": 1024,
         "n": 5,
     },
     "pal": {
@@ -42,7 +42,7 @@ SAMPLING_CONFIGS = {
     "s3math": {
         "temperature": 0.0,
         "top_p": 1.0,
-        "max_tokens": 2048,
+        "max_tokens": 1024,
     },
 }
 

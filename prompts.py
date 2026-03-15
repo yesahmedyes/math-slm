@@ -35,26 +35,32 @@ SC_COT_USER = COT_USER
 # Method 4: PAL (Program-Aided Language Models)
 # =============================================================================
 
-PAL_SYSTEM = "You are a math problem solver that decomposes problems into Python programs with meaningful variable names. Always write your code inside a ```python code block."
+PAL_SYSTEM = "You are a math problem solver that decomposes problems into Python programs with meaningful variable names. Always write your code inside a ```python code block. Begin with a '# Reasoning:' comment explaining your approach, then add step comments."
 
 PAL_USER = """Let's use Python to solve math problems. Use meaningful variable names that reflect the problem entities. Write the question as a comment starting with # Q:, then the Python code inside a ```python code block, ending with a print statement.
 
 # Q: A tech support agent receives 45 tickets each day. She resolves 38 tickets per day. After 5 working days, how many unresolved tickets has she accumulated?
 ```python
+# Reasoning: Find daily unresolved = received - resolved, then scale by number of days.
 tickets_received_per_day = 45
 tickets_resolved_per_day = 38
 days_worked = 5
+# Step 1: daily unresolved tickets
 unresolved_per_day = tickets_received_per_day - tickets_resolved_per_day
+# Step 2: total over 5 days
 total_unresolved = unresolved_per_day * days_worked
 print(total_unresolved)
 ```
 
 # Q: A laptop originally costs $250. The store offers a 20% discount, but then charges 8% sales tax on the discounted price. What is the final price in dollars?
 ```python
+# Reasoning: Apply discount first to get sale price, then compute tax on that price.
 original_price = 250
 discount_percent = 20
 tax_percent = 8
+# Step 1: apply discount
 discounted_price = original_price * (1 - discount_percent / 100)
+# Step 2: add sales tax on discounted price
 sales_tax = discounted_price * tax_percent / 100
 final_price = discounted_price + sales_tax
 print(final_price)
@@ -62,29 +68,34 @@ print(final_price)
 
 # Q: Solve for x: 3x + 7 = 2x + 15. What is the value of x?
 ```python
-# 3x + 7 = 2x + 15
-# Rearrange: 3x - 2x = 15 - 7
+# Reasoning: Move x terms to left side and constants to right, then solve for x.
+# 3x - 2x = 15 - 7 => x = 8
 coefficient_left = 3
 coefficient_right = 2
 constant_left = 7
 constant_right = 15
+# Step 1: isolate x by rearranging
 x = (constant_right - constant_left) // (coefficient_left - coefficient_right)
 print(x)
 ```
 
 # Q: Let f(x) = 2x^2 - 3x + 1. What is f(4) - f(2)?
 ```python
+# Reasoning: Define f(x), evaluate at both points, then subtract.
 def f(x):
     return 2 * x**2 - 3 * x + 1
+# Step 1: compute f(4) - f(2)
 result = f(4) - f(2)
 print(result)
 ```
 
 # Q: Two buses depart from the same station. Bus A departs every 48 minutes and Bus B departs every 180 minutes. If they both depart at 6:00 AM, how many minutes after 6:00 AM will they next depart at the same time?
 ```python
+# Reasoning: They next coincide at LCM(48, 180). Use LCM = a*b / GCD(a,b).
 import math
 bus_a_interval = 48
 bus_b_interval = 180
+# Step 1: compute GCD, then derive LCM
 gcd = math.gcd(bus_a_interval, bus_b_interval)
 lcm = bus_a_interval * bus_b_interval // gcd
 print(lcm)
@@ -92,32 +103,39 @@ print(lcm)
 
 # Q: What is the remainder when 7^100 is divided by 5?
 ```python
+# Reasoning: Use Python's built-in modular exponentiation: pow(base, exp, mod).
 base = 7
 exponent = 100
 modulus = 5
+# Step 1: compute 7^100 mod 5 directly
 remainder = pow(base, exponent, modulus)
 print(remainder)
 ```
 
 # Q: A club has 8 members. How many ways can they choose a committee of 3 members?
 ```python
+# Reasoning: Order doesn't matter, so use combinations: C(8,3) = 8! / (3! * 5!).
 import math
 total_members = 8
 committee_size = 3
+# Step 1: compute C(8,3)
 ways = math.factorial(total_members) // (math.factorial(committee_size) * math.factorial(total_members - committee_size))
 print(ways)
 ```
 
 # Q: Two fair six-sided dice are rolled. What is the probability that their sum is at least 10? Express your answer as a common fraction.
 ```python
+# Reasoning: Enumerate all 36 outcomes of two dice, count those with sum >= 10.
 from fractions import Fraction
 favorable = 0
 total = 0
+# Step 1: count favorable outcomes
 for die1 in range(1, 7):
     for die2 in range(1, 7):
         total += 1
         if die1 + die2 >= 10:
             favorable += 1
+# Step 2: form probability as fraction
 probability = Fraction(favorable, total)
 print(probability)
 ```
@@ -129,18 +147,21 @@ print(probability)
 # Method 5: PoT (Program of Thoughts)
 # =============================================================================
 
-POT_SYSTEM = "You are a math problem solver that expresses reasoning steps as Python programs. Use meaningful variable names. You may use SymPy for symbolic math and loops for iterative problems. Store the final answer in a variable named 'ans'. Always write your code inside a ```python code block."
+POT_SYSTEM = "You are a math problem solver that expresses reasoning steps as Python programs. Use meaningful variable names. You may use SymPy for symbolic math and loops for iterative problems. Store the final answer in a variable named 'ans'. Always write your code inside a ```python code block. Begin with a '# Reasoning:' comment explaining your approach, then add step comments."
 
 POT_USER = """Question: Maria is reading a 320-page book. On weekdays she reads 25 pages per day, and on weekends she reads 40 pages per day. How many full weeks does it take her to finish the book?
 ```python
 # Python code, return ans
+# Reasoning: Compute pages per week (5 weekdays + 2 weekend days), then ceil(total / per_week).
 import math
 pages_total = 320
 pages_weekday = 25
 pages_weekend = 40
 weekdays = 5
 weekend_days = 2
+# Step 1: weekly reading rate
 pages_per_week = pages_weekday * weekdays + pages_weekend * weekend_days
+# Step 2: weeks needed (round up)
 ans = math.ceil(pages_total / pages_per_week)
 print(ans)
 ```
@@ -148,10 +169,13 @@ print(ans)
 Question: A swimming pool holds 480 gallons. A hose fills it at 12 gallons per hour, but a small crack drains water at 4 gallons per hour. How many hours does it take to fill the pool from empty?
 ```python
 # Python code, return ans
+# Reasoning: Net fill rate = fill - drain. Time = capacity / net rate.
 pool_capacity = 480
 fill_rate = 12
 drain_rate = 4
+# Step 1: net fill rate
 net_fill_rate = fill_rate - drain_rate
+# Step 2: hours to fill
 ans = pool_capacity // net_fill_rate
 print(ans)
 ```
@@ -159,10 +183,13 @@ print(ans)
 Question: If 2x + y = 11 and x - y = 1, what is the value of x + y?
 ```python
 # Python code, return ans
+# Reasoning: Two equations, two unknowns — use sympy.solve for the system.
 from sympy import symbols, Eq, solve
 x, y = symbols('x y')
+# Step 1: set up equations
 eq1 = Eq(2*x + y, 11)
 eq2 = Eq(x - y, 1)
+# Step 2: solve and compute x + y
 solution = solve((eq1, eq2), (x, y))
 ans = solution[x] + solution[y]
 print(ans)
@@ -171,9 +198,12 @@ print(ans)
 Question: Find the positive difference between the roots of x^2 - 5x + 6 = 0.
 ```python
 # Python code, return ans
+# Reasoning: Find both roots of the quadratic, then take their absolute difference.
 from sympy import symbols, solve
 x = symbols('x')
+# Step 1: solve for roots
 roots = solve(x**2 - 5*x + 6, x)
+# Step 2: positive difference
 ans = max(roots) - min(roots)
 print(ans)
 ```
@@ -181,7 +211,9 @@ print(ans)
 Question: What is the sum of all positive divisors of 72?
 ```python
 # Python code, return ans
+# Reasoning: A divisor of n is any integer i where n % i == 0. Sum all such i from 1 to n.
 n = 72
+# Step 1: find and sum all divisors
 ans = sum(i for i in range(1, n + 1) if n % i == 0)
 print(ans)
 ```
@@ -189,13 +221,17 @@ print(ans)
 Question: What is the smallest positive integer that is divisible by both 12 and 18 and is also a perfect square?
 ```python
 # Python code, return ans
+# Reasoning: Start with LCM(12,18). For a perfect square, all prime exponents must be even.
+# Multiply by primes whose exponents are odd.
 from sympy import factorint, lcm
 l = int(lcm(12, 18))
 factors = factorint(l)
+# Step 1: fix odd exponents
 multiplier = 1
 for prime, exp in factors.items():
     if exp % 2 == 1:
         multiplier *= prime
+# Step 2: multiply to get smallest perfect square
 ans = l * multiplier
 print(ans)
 ```
@@ -203,9 +239,10 @@ print(ans)
 Question: In how many ways can 5 different books be arranged on a shelf if two specific books must always be next to each other?
 ```python
 # Python code, return ans
+# Reasoning: Treat the two paired books as one unit → 4 units to arrange.
+# The pair has 2! internal orderings.
 import math
-# Treat the two books as a single unit: 4 units to arrange
-# The two books can be ordered 2! ways within the unit
+# Step 1: arrange 4 units, multiply by internal orderings
 ans = math.factorial(4) * math.factorial(2)
 print(ans)
 ```
@@ -213,13 +250,16 @@ print(ans)
 Question: A bag contains 5 red marbles and 3 blue marbles. If you draw 3 marbles without replacement, what is the probability of getting exactly 2 red marbles? Express your answer as a common fraction.
 ```python
 # Python code, return ans
+# Reasoning: Use hypergeometric probability: C(red,2)*C(blue,1) / C(total,3).
 from math import comb
 from fractions import Fraction
 red_marbles = 5
 blue_marbles = 3
 draw_count = 3
+# Step 1: count favorable and total outcomes
 favorable = comb(red_marbles, 2) * comb(blue_marbles, 1)
 total = comb(red_marbles + blue_marbles, draw_count)
+# Step 2: form probability
 ans = Fraction(favorable, total)
 print(ans)
 ```
